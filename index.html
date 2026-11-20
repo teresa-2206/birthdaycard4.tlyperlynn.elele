@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Birthday Surprise for You</title>
+
+  <style>
+    :root {
+      --pink: #ed6a9a;
+      --pink-dark: #b63e70;
+      --cream: #fffaf5;
+      --purple: #7b61a8;
+      --ink: #493846;
+      --gold: #e0ae62;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      background: #fff8f6;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .opening {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9) 0 8%, transparent 9%),
+        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.7) 0 7%, transparent 8%),
+        linear-gradient(135deg, #ffd8e5, #e9dafa 55%, #ffe9c8);
+    }
+
+    .opening-card {
+      width: min(540px, 100%);
+    }
+
+    .opening h1 {
+      margin: 0;
+      color: white;
+      font-size: clamp(3rem, 12vw, 6.5rem);
+      line-height: 0.95;
+      text-shadow: 0 5px 22px rgba(137, 71, 105, 0.22);
+    }
+
+    .revealed-title {
+      display: none;
+    }
+
+    .revealed-title.show {
+      display: block;
+      animation: titleReveal 1s cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .opening-subtitle {
+      margin: 18px 0 26px;
+      color: #745266;
+      font-family: system-ui, sans-serif;
+      font-size: clamp(1rem, 4vw, 1.25rem);
+    }
+
+    .open-button {
+      min-width: 210px;
+      padding: 15px 28px;
+      color: white;
+      font-family: system-ui, sans-serif;
+      font-weight: 800;
+      background: var(--pink-dark);
+      border: 0;
+      border-radius: 999px;
+      box-shadow: 0 12px 30px rgba(182, 62, 112, 0.25);
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .open-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 34px rgba(182, 62, 112, 0.32);
+    }
+
+    .open-button:focus-visible,
+    .letter-envelope:focus-visible,
+    .cake:focus-visible {
+      outline: 4px solid #493846;
+      outline-offset: 5px;
+    }
+
+    .open-button.opened {
+      background: #7e9d87;
+    }
+
+    .scroll-note {
+      display: none;
+      margin-top: 26px;
+      color: #745266;
+      font-family: system-ui, sans-serif;
+      font-size: 0.85rem;
+      animation: floatDown 1.5s ease-in-out infinite;
+    }
+
+    .scroll-note.show {
+      display: block;
+    }
+
+    section {
+      padding: 90px 24px;
+    }
+
+    .section-inner {
+      width: min(1000px, 100%);
+      margin: auto;
+    }
+
+    .section-heading {
+      margin: 0 0 14px;
+      color: var(--pink-dark);
+      text-align: center;
+      font-size: clamp(2.2rem, 7vw, 4.2rem);
+    }
+
+    .section-description {
+      max-width: 560px;
+      margin: 0 auto 42px;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .memories {
+      background:
+        linear-gradient(rgba(255, 248, 246, 0.94), rgba(255, 248, 246, 0.94)),
+        radial-gradient(circle at center, #ffc1d7, transparent 70%);
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .photo {
+      position: relative;
+      margin: 0;
+      overflow: hidden;
+      background: #eadfe6;
+      border: 10px solid white;
+      border-radius: 4px;
+      box-shadow: 0 14px 30px rgba(90, 64, 82, 0.16);
+      transform: rotate(var(--tilt, 0deg));
+    }
+
+    .photo:nth-child(1) {
+      grid-column: 1 / 6;
+      --tilt: -2deg;
+    }
+
+    .photo:nth-child(2) {
+      grid-column: 6 / 13;
+      margin-top: 45px;
+      --tilt: 2deg;
+    }
+
+    .photo:nth-child(3) {
+      grid-column: 2 / 8;
+      --tilt: 1deg;
+    }
+
+    .photo:nth-child(4) {
+      grid-column: 8 / 12;
+      margin-top: -20px;
+      --tilt: -3deg;
+    }
+
+    .photo img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      display: block;
+      object-fit: cover;
+    }
+
+    .photo figcaption {
+      padding: 10px 6px 4px;
+      color: #806576;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .collage-section {
+      background: linear-gradient(135deg, #fff1e8, #f7eafa);
+    }
+
+    .letter-envelope {
+      position: relative;
+      width: min(580px, 92vw);
+      height: min(360px, 56vw);
+      margin: 70px auto;
+      background: #eccbca;
+      border: 0;
+      border-radius: 8px;
+      box-shadow: 0 22px 45px rgba(92, 65, 82, 0.18);
+      cursor: pointer;
+      perspective: 1000px;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      background: #ddb0b6;
+      clip-path: polygon(0 0, 100% 0, 50% 58%);
+      transform-origin: top;
+      transition: transform 700ms ease;
+    }
+
+    .letter-envelope.open .envelope-flap {
+      transform: rotateX(180deg);
+    }
+
+    .letter-content {
+      position: absolute;
+      z-index: 2;
+      inset: 28px 32px -70px;
+      overflow: hidden;
+      background: white;
+      border: 8px solid #f8f1eb;
+      border-radius: 4px;
+      box-shadow: 0 16px 30px rgba(78, 55, 69, 0.2);
+      transform: translateY(36%);
+      transition: transform 800ms ease 250ms;
+    }
+
+    .letter-envelope.open .letter-content {
+      transform: translateY(-88%);
+    }
+
+    .letter-content img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .wax-seal {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      bottom: 26px;
+      width: 74px;
+      height: 74px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 1.7rem;
+      background: var(--pink-dark);
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      transition: opacity 300ms ease, transform 500ms ease;
+    }
+
+    .letter-envelope.open .wax-seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.5);
+    }
+
+    .envelope-label {
+      margin-top: 24px;
+      color: #806576;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+    }
+
+    .cake-section {
+      min-height: 700px;
+      background: linear-gradient(180deg, #f5eafa, #fff5e8);
+    }
+
+    .cake-wrap {
+      display: grid;
+      justify-items: center;
+    }
+
+    .cake {
+      position: relative;
+      width: min(430px, 82vw);
+      height: 270px;
+      margin-top: 50px;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .cake-stand {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 112%;
+      height: 24px;
+      background: #aa90aa;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+
+    .cake-base {
+      position: absolute;
+      left: 50%;
+      bottom: 15px;
+      width: 88%;
+      height: 150px;
+      background:
+        radial-gradient(circle at 12% 20%, #fff 0 8px, transparent 9px),
+        radial-gradient(circle at 32% 20%, #fff 0 8px, transparent 9px),
+        radial-gradient(circle at 52% 20%, #fff 0 8px, transparent 9px),
+        radial-gradient(circle at 72% 20%, #fff 0 8px, transparent 9px),
+        radial-gradient(circle at 92% 20%, #fff 0 8px, transparent 9px),
+        linear-gradient(#ffb3c9 0 25%, #f4a0bd 26% 100%);
+      border-radius: 18px 18px 12px 12px;
+      box-shadow: inset 0 -18px rgba(185, 83, 125, 0.12);
+      transform: translateX(-50%);
+    }
+
+    .candles {
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      bottom: 150px;
+      width: 78%;
+      display: flex;
+      justify-content: space-around;
+      transform: translateX(-50%);
+    }
+
+    .candle {
+      position: relative;
+      width: 18px;
+      height: 72px;
+      background: repeating-linear-gradient(
+        135deg,
+        #fff 0 8px,
+        #77bdb6 8px 16px
+      );
+      border-radius: 5px 5px 2px 2px;
+    }
+
+    .flame {
+      position: absolute;
+      left: 50%;
+      bottom: 76px;
+      width: 23px;
+      height: 34px;
+      background: radial-gradient(ellipse at bottom, #fff5af 0 20%, #ffb52e 21% 55%, #ff7b54 56%);
+      border-radius: 50% 50% 48% 48%;
+      transform: translateX(-50%);
+      transform-origin: bottom;
+      animation: flicker 220ms ease-in-out infinite alternate;
+      box-shadow: 0 0 18px #ffbd55;
+    }
+
+    .cake.blown .flame {
+      display: none;
+    }
+
+    .cake.blown .candle::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 78px;
+      width: 18px;
+      height: 30px;
+      background: radial-gradient(ellipse, rgba(120, 120, 120, 0.38), transparent 70%);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      animation: smoke 2s ease-out forwards;
+    }
+
+    .cake-message {
+      min-height: 48px;
+      margin-top: 25px;
+      color: var(--pink-dark);
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .letters-section {
+      background: #fffaf5;
+    }
+
+    .letter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px;
+    }
+
+    .birthday-letter {
+      min-height: 420px;
+      padding: 42px;
+      background:
+        linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.88)),
+        repeating-linear-gradient(0deg, transparent 0 31px, #ead9df 32px);
+      border: 1px solid #eadde2;
+      border-radius: 3px;
+      box-shadow: 0 18px 45px rgba(93, 70, 84, 0.12);
+      line-height: 1.85;
+    }
+
+    .birthday-letter h3 {
+      margin-top: 0;
+      color: var(--pink-dark);
+      font-size: 1.7rem;
+    }
+
+    .birthday-letter .from {
+      margin-top: 28px;
+      color: #806576;
+      font-style: italic;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      z-index: 999;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    @keyframes titleReveal {
+      0% {
+        opacity: 0;
+        transform: scale(0.6) rotate(-5deg);
+        filter: blur(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes floatDown {
+      50% { transform: translateY(8px); }
+    }
+
+    @keyframes flicker {
+      from { transform: translateX(-50%) rotate(-4deg) scaleY(0.95); }
+      to { transform: translateX(-50%) rotate(4deg) scaleY(1.08); }
+    }
+
+    @keyframes smoke {
+      to {
+        opacity: 0;
+        transform: translate(-50%, -55px) scale(1.8);
+      }
+    }
+
+    @media (max-width: 700px) {
+      section {
+        padding: 70px 18px;
+      }
+
+      .photo-grid {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .photo {
+        width: 92%;
+        margin: 0 auto 20px !important;
+      }
+
+      .letter-envelope {
+        height: 300px;
+      }
+
+      .letter-content {
+        inset: 24px 20px -40px;
+      }
+
+      .letter-envelope.open .letter-content {
+        transform: translateY(-82%);
+      }
+
+      .letter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .birthday-letter {
+        min-height: 0;
+        padding: 32px 26px;
+      }
+
+      .cake {
+        height: 230px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+  <header class="opening" id="opening">
+    <div class="opening-card">
+      <h1 class="revealed-title" id="birthdayTitle">
+        Happy Birthday!
+      </h1>
+
+      <p class="opening-subtitle" id="openingSubtitle">
+        I made this little corner of the internet just for you.
+      </p>
+
+      <button class="open-button" id="openButton" type="button">
+        Tap for your surprise
+      </button>
+
+      <div class="scroll-note" id="scrollNote">
+        Scroll down for the memories ↓
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="memories" id="memories">
+      <div class="section-inner">
+        <h2 class="section-heading">Our Favourite Moments</h2>
+        <p class="section-description">
+          A few memories, lots of laughter, and every little moment that makes me
+          grateful to have you in my life.
+        </p>
+
+        <div class="photo-grid">
+          <!-- Replace these with your real photo URLs -->
+          <figure class="photo">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900"
+                 alt="Friends together"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22900%22 height=%22675%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23eadfe6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EOur first photo%3C/text%3E%3C/svg%3E'" />
+            <figcaption>Our first favourite memory</figcaption>
+          </figure>
+
+          <figure class="photo">
+            <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=900"
+                 alt="Friends celebrating"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22900%22 height=%22675%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23eadfe6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EAnother memory%3C/text%3E%3C/svg%3E'" />
+            <figcaption>The day we laughed nonstop</figcaption>
+          </figure>
+
+          <figure class="photo">
+            <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=900"
+                 alt="Friends smiling"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22900%22 height=%22675%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23eadfe6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EOur smiles%3C/text%3E%3C/svg%3E'" />
+            <figcaption>One of many silly adventures</figcaption>
+          </figure>
+
+          <figure class="photo">
+            <img src="https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?w=900"
+                 alt="Friends spending time together"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22900%22 height=%22675%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23eadfe6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 height=%22100%25%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EThe best times%3C/text%3E%3C/svg%3E'" />
+            <figcaption>More memories to come</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="collage-section">
+      <div class="section-inner">
+        <h2 class="section-heading">A Letter for You</h2>
+        <p class="section-description">
+          I collected all our favourite moments into one little birthday letter.
+          Tap the envelope to open it.
+        </p>
+
+        <button class="letter-envelope" id="letterEnvelope"
+                type="button" aria-expanded="false">
+          <span class="envelope-flap"></span>
+
+          <span class="letter-content">
+            <!-- Replace this with your Canva JPG export -->
+            <img src="https://placehold.co/900x560/fff4eb/a33e75?text=Your+Canva+Collage"
+                 alt="A collage of photos and birthday memories" />
+          </span>
+
+          <span class="wax-seal" aria-hidden="true">♥</span>
+        </button>
+
+        <div class="envelope-label" id="envelopeLabel">
+          Tap to open my letter
+        </div>
+      </div>
+    </section>
+
+    <section class="cake-section">
+      <div class="section-inner">
+        <h2 class="section-heading">Make a Birthday Wish</h2>
+        <p class="section-description">
+          Close your eyes, make your wish, and tap the cake to blow out the candles.
+        </p>
+
+        <div class="cake-wrap">
+          <button class="cake" id="cake" type="button"
+                  aria-label="Blow out the birthday candles">
+            <span class="cake-stand"></span>
+            <span class="cake-base"></span>
+
+            <span class="candles" aria-hidden="true">
+              <span class="candle"><span class="flame"></span></span>
+              <span class="candle"><span class="flame"></span></span>
+              <span class="candle"><span class="flame"></span></span>
+              <span class="candle"><span class="flame"></span></span>
+              <span class="candle"><span class="flame"></span></span>
+            </span>
+          </button>
+
+          <p class="cake-message" id="cakeMessage" aria-live="polite">
+            The candles are waiting for you ✨
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="letters-section">
+      <div class="section-inner">
+        <h2 class="section-heading">A Few Birthday Wishes</h2>
+        <p class="section-description">
+          Words from the people who are lucky to know you.
+        </p>
+
+        <div class="letter-grid">
+          <article class="birthday-letter">
+            <h3>From me</h3>
+            <p>
+              Happy birthday to someone who makes ordinary days feel brighter.
+              Thank you for every conversation, every adventure, and every moment
+              of comfort you’ve given me.
+            </p>
+            <p>
+              I hope this year brings you unexpected happiness, beautiful memories,
+              and everything you have been dreaming about. You deserve to be celebrated
+              not only today, but every day.
+            </p>
+            <p class="from">With love, always ♥</p>
+          </article>
+
+          <article class="birthday-letter">
+            <h3>From my friend</h3>
+            <p>
+              Happy birthday! You are the kind of person who makes everyone around you
+              feel happier, safer, and more understood.
+            </p>
+            <p>
+              I hope your birthday is full of good surprises, your favourite food,
+              loud laughter, and the people who mean the most to you.
+              Here’s to another unforgettable year together!
+            </p>
+            <p class="from">Lots of love, from your friend</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("confettiCanvas");
+    const context = canvas.getContext("2d");
+    const openButton = document.getElementById("openButton");
+    const birthdayTitle = document.getElementById("birthdayTitle");
+    const scrollNote = document.getElementById("scrollNote");
+
+    let pieces = [];
+    let confettiFrame = null;
+
+    function resizeCanvas() {
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * scale;
+      canvas.height = window.innerHeight * scale;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      context.setTransform(scale, 0, 0, scale, 0, 0);
+    }
+
+    function createConfetti(amount = 160) {
+      const colors = [
+        "#ef7aa5",
+        "#ffd166",
+        "#8f79c5",
+        "#74c4b4",
+        "#ff9f68",
+        "#ffffff"
+      ];
+
+      pieces = [];
+
+      for (let i = 0; i < amount; i++) {
+        pieces.push({
+          x: Math.random() * window.innerWidth,
+          y: -20 - Math.random() * window.innerHeight * 0.5,
+          width: 6 + Math.random() * 8,
+          height: 8 + Math.random() * 12,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * Math.PI,
+          speed: 2.5 + Math.random() * 5,
+          drift: -2 + Math.random() * 4,
+          spin: -0.12 + Math.random() * 0.24
+        });
+      }
+    }
+
+    function drawConfetti() {
+      context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      for (const piece of pieces) {
+        context.save();
+        context.translate(piece.x, piece.y);
+        context.rotate(piece.rotation);
+        context.fillStyle = piece.color;
+        context.fillRect(
+          -piece.width / 2,
+          -piece.height / 2,
+          piece.width,
+          piece.height
+        );
+        context.restore();
+
+        piece.y += piece.speed;
+        piece.x += piece.drift;
+        piece.rotation += piece.spin;
+      }
+
+      pieces = pieces.filter(piece => piece.y < window.innerHeight + 30);
+
+      if (pieces.length) {
+        confettiFrame = requestAnimationFrame(drawConfetti);
+      } else {
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+    }
+
+    function launchConfetti(amount) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      cancelAnimationFrame(confettiFrame);
+      createConfetti(amount);
+      drawConfetti();
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    openButton.addEventListener("click", () => {
+      birthdayTitle.classList.add("show");
+      openButton.classList.add("opened");
+      openButton.textContent = "Happy Birthday! 🎉";
+      openButton.disabled = true;
+      scrollNote.classList.add("show");
+      launchConfetti(190);
+    });
+
+    const letterEnvelope = document.getElementById("letterEnvelope");
+    const envelopeLabel = document.getElementById("envelopeLabel");
+
+    letterEnvelope.addEventListener("click", () => {
+      const isOpen = letterEnvelope.classList.toggle("open");
+      letterEnvelope.setAttribute("aria-expanded", String(isOpen));
+      envelopeLabel.textContent = isOpen
+        ? "Keep this memory open ♥"
+        : "Tap to open my letter";
+
+      if (isOpen) {
+        launchConfetti(60);
+      }
+    });
+
+    const cake = document.getElementById("cake");
+    const cakeMessage = document.getElementById("cakeMessage");
+
+    cake.addEventListener("click", () => {
+      if (cake.classList.contains("blown")) {
+        return;
+      }
+
+      cake.classList.add("blown");
+      cake.setAttribute("aria-label", "The birthday candles are blown out");
+      cakeMessage.textContent = "Your wish is on its way! Make sure it comes true ✨";
+      launchConfetti(180);
+
+      setTimeout(() => {
+        cakeMessage.textContent = "One more wish for one more amazing year 🎂";
+      }, 3500);
+    });
+  </script>
+</body>
+</html>
